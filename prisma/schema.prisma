@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions", "multiSchema", "postgresqlExtensions"]
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
 }
 
 datasource db {
@@ -9,10 +9,118 @@ datasource db {
   schemas  = ["schema_ari"]
 }
 
-model Auths {
+model Cities {
+  id          String    @id(map: "cities_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  city_code   String    @unique(map: "cities_unique") @db.VarChar(100)
+  city_name   String    @db.VarChar(100)
+  province_id String    @db.Uuid
+  created_at  DateTime  @default(now()) @db.Timestamp(0)
+  created_by  String    @db.VarChar(255)
+  updated_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_by  String?
+  deleted_at  DateTime?
+  deleted_by  String?
+  Provinces   Provinces @relation(fields: [province_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cities_provinces_fk")
+  Users       Users[]
+
+  @@schema("schema_ari")
+}
+
+model Companies {
+  id           String      @id(map: "companies_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_code String      @db.VarChar(255)
+  company_name String      @db.VarChar
+  created_at   DateTime    @default(now()) @db.Timestamp(0)
+  created_by   String      @db.VarChar(255)
+  updated_at   DateTime?   @default(now()) @db.Timestamp(0)
+  updated_by   String?
+  deleted_at   DateTime?
+  deleted_by   String?
+  UserRoles    UserRoles[]
+
+  @@schema("schema_ari")
+}
+
+model Countries {
+  id           String      @id(map: "countries_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  country_code String      @db.VarChar(5)
+  country_name String      @db.VarChar(255)
+  created_at   DateTime    @default(now()) @db.Timestamp(0)
+  created_by   String      @db.VarChar(255)
+  updated_at   DateTime?   @default(now()) @db.Timestamp(0)
+  updated_by   String?
+  deleted_at   DateTime?
+  deleted_by   String?
+  Provinces    Provinces[]
+  Users        Users[]
+
+  @@schema("schema_ari")
+}
+
+model Provinces {
+  id            String    @id(map: "provinces_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  province_code String    @unique(map: "provinces_unique") @db.VarChar(100)
+  province_name String    @db.VarChar(100)
+  country_id    String    @db.Uuid
+  created_at    DateTime  @default(now()) @db.Timestamp(0)
+  created_by    String    @db.VarChar(255)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_by    String?
+  deleted_at    DateTime?
+  deleted_by    String?
+  Cities        Cities[]
+  Countries     Countries @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "provinces_countries_fk")
+  Users         Users[]
+
+  @@schema("schema_ari")
+}
+
+model Employees {
+  id            String    @id(map: "employees_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employee_name String?   @db.VarChar(100)
+  created_at    DateTime  @default(now()) @db.Timestamp(0)
+  created_by    String    @db.VarChar(255)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_by    String?
+  deleted_at    DateTime?
+  deleted_by    String?
+  Users         Users[]
+
+  @@schema("schema_ari")
+}
+
+model Positions {
+  id                   String    @id(map: "groups_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  position_name        String    @db.VarChar(255)
+  position_description String?
+  created_at           DateTime  @default(now()) @db.Timestamp(0)
+  created_by           String    @db.VarChar(255)
+  updated_at           DateTime? @default(now()) @db.Timestamp(0)
+  updated_by           String?
+  deleted_at           DateTime?
+  deleted_by           String?
+
+  @@schema("schema_ari")
+}
+
+model Roles {
+  id         String      @id(map: "roles_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role_code  String      @unique(map: "roles_unique") @db.VarChar(100)
+  role_name  String      @db.VarChar(100)
+  created_at DateTime    @default(now()) @db.Timestamp(0)
+  created_by String      @db.VarChar(255)
+  updated_at DateTime?   @default(now()) @db.Timestamp(0)
+  updated_by String?
+  deleted_at DateTime?
+  deleted_by String?
+  UserRoles  UserRoles[]
+
+  @@schema("schema_ari")
+}
+
+model UserCompanies {
   id         String    @id(map: "auths_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid
-  group_id   String    @db.Uuid
   company_id String    @db.Uuid
   created_at DateTime  @default(now()) @db.Timestamp(0)
   created_by String    @db.VarChar(255)
@@ -24,160 +132,51 @@ model Auths {
   @@schema("schema_ari")
 }
 
-model Cities {
-  id         String    @id(map: "cities_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  city_code  String    @unique(map: "cities_unique") @db.VarChar(100)
-  city_name  String    @db.VarChar(100)
-  country_id String    @db.Uuid
-  created_at DateTime  @default(now()) @db.Timestamp(0)
-  created_by String    @db.VarChar(255)
-  updated_at DateTime? @default(now()) @db.Timestamp(0)
+model UserRoles {
+  id         String     @id(map: "userroles_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String     @db.Uuid
+  role_id    String     @db.Uuid
+  company_id String?    @db.Uuid
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  created_by String     @db.VarChar(255)
+  updated_at DateTime?  @default(now()) @db.Timestamp(0)
   updated_by String?
   deleted_at DateTime?
   deleted_by String?
-  Countries  Countries @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cities_countries_fk")
+  Companies  Companies? @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userroles_companies_fk")
+  Roles      Roles      @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userroles_roles_fk")
+  Users      Users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "userroles_users_fk")
 
   @@schema("schema_ari")
 }
 
-model Companies {
-  id           String    @id(map: "companies_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  company_code String    @db.VarChar(255)
-  company_name String    @db.VarChar
-  created_at   DateTime  @default(now()) @db.Timestamp(0)
-  created_by   String    @db.VarChar(255)
-  updated_at   DateTime? @default(now()) @db.Timestamp(0)
-  updated_by   String?
-  deleted_at   DateTime?
-  deleted_by   String?
-
-  @@schema("schema_ari")
-}
-
-model Countries {
-  id           String    @id(map: "countries_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  country_code String    @db.VarChar(5)
-  country_name String    @db.VarChar(255)
-  created_at   DateTime  @default(now()) @db.Timestamp(0)
-  created_by   String    @db.VarChar(255)
-  updated_at   DateTime? @default(now()) @db.Timestamp(0)
-  updated_by   String?
-  deleted_at   DateTime?
-  deleted_by   String?
-  Cities       Cities[]
-
-  @@schema("schema_ari")
-}
-
-model Menus {
-  id               String     @id(map: "menus_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  menu_code        String
-  menu_name        String     @db.VarChar(255)
-  menu_description String?
-  path             String     @default("#") @db.VarChar(255)
-  parent_menu      String?    @db.VarChar(50)
-  order_no         Int        @db.SmallInt
-  icon             String?    @db.VarChar
-  is_active        optionflag
-  created_at       DateTime   @default(now()) @db.Timestamp(0)
-  created_by       String     @db.VarChar(255)
-  updated_at       DateTime?  @default(now()) @db.Timestamp(0)
-  updated_by       String?    @db.VarChar(100)
-  deleted_at       DateTime?
-  deleted_by       String?    @db.VarChar(100)
-
-  @@schema("schema_ari")
-}
-
-model MenusGroupAccess {
-  id          String    @id(map: "menusgroupaccess_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  menu_id     String    @db.Uuid
-  group_id    String    @db.Uuid
-  permissions String
-  created_at  DateTime  @default(now()) @db.Timestamp(0)
-  created_by  String    @db.VarChar(255)
-  updated_at  DateTime? @default(now()) @db.Timestamp(0)
-  updated_by  String?
-  deleted_at  DateTime?
-  deleted_by  String?
-
-  @@schema("schema_ari")
-}
-
-model Modules {
-  id                         String     @id(map: "modules_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  alias_name                 String     @db.VarChar(255)
-  table_name                 String     @db.VarChar(255)
-  field_name_code            String     @db.VarChar(255)
-  flag_auto_numbering        optionflag
-  application_code           String?    @db.VarChar(100)
-  additional_config_approval String?
-  config_email               String?
-  created_at                 DateTime   @default(now()) @db.Timestamp(0)
-  created_by                 String     @db.VarChar(255)
-  updated_at                 DateTime?  @default(now()) @db.Timestamp(0)
-  updated_by                 String?
-  deleted_at                 DateTime?
-  deleted_by                 String?
-
-  @@schema("schema_ari")
-}
-
-model Permisions {
-  id              String    @id(map: "permisions_pk") @db.Uuid
-  module_id       String?   @db.Uuid
-  permission_name String?   @db.VarChar(255)
-  created_at      DateTime  @default(now()) @db.Timestamp(0)
-  created_by      String    @db.VarChar(255)
-  updated_at      DateTime? @default(now()) @db.Timestamp(0)
-  updated_by      String?
-  deleted_at      DateTime?
-  deleted_by      String?
-
-  @@schema("schema_ari")
-}
-
-model Provinces {
-  id            String    @id(map: "provinces_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  province_code String    @unique(map: "provinces_unique") @db.VarChar(100)
-  province_name String    @db.VarChar(100)
-  created_at    DateTime  @default(now()) @db.Timestamp(0)
-  created_by    String    @db.VarChar(255)
-  updated_at    DateTime? @default(now()) @db.Timestamp(0)
-  updated_by    String?
-  deleted_at    DateTime?
-  deleted_by    String?
-
-  @@schema("schema_ari")
-}
-
-model UserAuth {
-  id               String    @id(map: "employees_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name             String    @db.VarChar(100)
-  username         String    @unique(map: "userauth_unique") @db.VarChar(100)
+model Users {
+  id               String      @id(map: "userauth_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String      @db.VarChar(100)
+  username         String      @unique(map: "users_unique") @db.VarChar(100)
   password         String
-  email            String    @unique(map: "userauth_unique_1") @db.VarChar(100)
-  nomor_telp       String    @db.VarChar(100)
-  alamat           String
-  city_id          String    @db.Uuid
-  province_id      String    @db.Uuid
-  country_id       String    @db.Uuid
-  kode_pos         String    @db.VarChar(100)
   confirm_password String
-  created_at       DateTime  @default(now()) @db.Timestamp(0)
-  created_by       String    @db.VarChar(255)
-  updated_at       DateTime? @default(now()) @db.Timestamp(0)
+  email            String      @db.VarChar(100)
+  no_telp          String      @db.VarChar(13)
+  alamat_lengkap   String?
+  country_id       String      @db.Uuid
+  province_id      String      @db.Uuid
+  city_id          String      @db.Uuid
+  employee_id      String      @db.Uuid
+  created_at       DateTime    @default(now()) @db.Timestamp(0)
+  created_by       String      @db.VarChar(255)
+  updated_at       DateTime?   @default(now()) @db.Timestamp(0)
   updated_by       String?
   deleted_at       DateTime?
   deleted_by       String?
+  UserRoles        UserRoles[]
+  Cities           Cities      @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_cities_fk")
+  Countries        Countries   @relation(fields: [country_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_countries_fk")
+  Employees        Employees   @relation(fields: [employee_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_employees_fk")
+  Provinces        Provinces   @relation(fields: [province_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_provinces_fk")
 
   @@schema("schema_ari")
 }
-
-/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
-// model Groups {
-// @@schema("schema_ari")
-// }
 
 enum optionflag {
   Y

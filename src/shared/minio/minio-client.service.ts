@@ -29,9 +29,9 @@ export class MinioClientService {
         let filename = hashedFileName + ext
         const fileName: string = `${filename}`;
         const fileBuffer = file.buffer;
-        this.client.putObject(baseBucket,fileName,fileBuffer, function(err, res) {
-          if(err) throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST)
-        })
+        // this.client.putObject(baseBucket,fileName,fileBuffer, function(err, res) {
+        //   if(err) throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST)
+        // })
     
         return {
           url: `https://${config.MINIO_ENDPOINT}:${config.MINIO_PORT_URL}/${config.MINIO_BUCKET}/${filename}` 
@@ -47,9 +47,9 @@ export class MinioClientService {
         let filename = hashedFilename + ext
         const fileName: string = `${filename}`;
         const fileBuffer = data;
-        this.client.putObject(baseBucket, filename, fileBuffer, function(err, res){
-            if(err) throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST), err
-        })
+        // this.client.putObject(baseBucket, filename, fileBuffer, function(err, res){
+        //     if(err) throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST), err
+        // })
 
         return {
             url: 'https://'+`${config.MINIO_ENDPOINT}:${config.MINIO_PORT_URL}/${config.MINIO_BUCKET}/${filename}`
